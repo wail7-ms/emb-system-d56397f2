@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
 import { User, Lock, Bell, Shield } from 'lucide-react';
@@ -22,11 +23,25 @@ const Settings = () => {
     confirmPassword: ''
   });
 
+  const [notifications, setNotifications] = useState({
+    email: true,
+    sms: false,
+    push: true
+  });
+
+  const [adminSettings, setAdminSettings] = useState({
+    maintenanceMode: false,
+    userRegistration: true,
+    debugMode: false
+  });
+
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate API call
+    // TODO: Replace with actual API call to update profile
+    console.log('Updating profile:', { name: profile.name, email: profile.email });
+    
     setTimeout(() => {
       toast({
         title: "Profile Updated",
@@ -38,6 +53,7 @@ const Settings = () => {
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (profile.newPassword !== profile.confirmPassword) {
       toast({
         title: "Error",
@@ -46,8 +62,21 @@ const Settings = () => {
       });
       return;
     }
+
+    if (profile.newPassword.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsLoading(true);
+    
+    // TODO: Replace with actual API call to change password
+    console.log('Changing password for user:', user?.email);
+    
     setTimeout(() => {
       toast({
         title: "Password Changed",
@@ -56,6 +85,38 @@ const Settings = () => {
       setProfile(prev => ({ ...prev, currentPassword: '', newPassword: '', confirmPassword: '' }));
       setIsLoading(false);
     }, 1000);
+  };
+
+  const handleNotificationToggle = (type: 'email' | 'sms' | 'push') => {
+    setNotifications(prev => {
+      const newSettings = { ...prev, [type]: !prev[type] };
+      
+      // TODO: Replace with actual API call to update notification settings
+      console.log('Updating notification settings:', newSettings);
+      
+      toast({
+        title: "Notification Settings Updated",
+        description: `${type.charAt(0).toUpperCase() + type.slice(1)} notifications ${newSettings[type] ? 'enabled' : 'disabled'}.`,
+      });
+      
+      return newSettings;
+    });
+  };
+
+  const handleAdminSettingToggle = (type: 'maintenanceMode' | 'userRegistration' | 'debugMode') => {
+    setAdminSettings(prev => {
+      const newSettings = { ...prev, [type]: !prev[type] };
+      
+      // TODO: Replace with actual API call to update admin settings
+      console.log('Updating admin settings:', newSettings);
+      
+      toast({
+        title: "Admin Settings Updated",
+        description: `${type.replace(/([A-Z])/g, ' $1').toLowerCase()} ${newSettings[type] ? 'enabled' : 'disabled'}.`,
+      });
+      
+      return newSettings;
+    });
   };
 
   return (
@@ -85,6 +146,7 @@ const Settings = () => {
                       value={profile.name}
                       onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
                       className="transition-all duration-200 focus:scale-[1.02]"
+                      required
                     />
                   </div>
                   <div className="space-y-2">
@@ -95,6 +157,7 @@ const Settings = () => {
                       value={profile.email}
                       onChange={(e) => setProfile(prev => ({ ...prev, email: e.target.value }))}
                       className="transition-all duration-200 focus:scale-[1.02]"
+                      required
                     />
                   </div>
                   <Button 
@@ -125,6 +188,7 @@ const Settings = () => {
                       value={profile.currentPassword}
                       onChange={(e) => setProfile(prev => ({ ...prev, currentPassword: e.target.value }))}
                       className="transition-all duration-200 focus:scale-[1.02]"
+                      required
                     />
                   </div>
                   <div className="space-y-2">
@@ -135,6 +199,8 @@ const Settings = () => {
                       value={profile.newPassword}
                       onChange={(e) => setProfile(prev => ({ ...prev, newPassword: e.target.value }))}
                       className="transition-all duration-200 focus:scale-[1.02]"
+                      required
+                      minLength={6}
                     />
                   </div>
                   <div className="space-y-2">
@@ -145,6 +211,8 @@ const Settings = () => {
                       value={profile.confirmPassword}
                       onChange={(e) => setProfile(prev => ({ ...prev, confirmPassword: e.target.value }))}
                       className="transition-all duration-200 focus:scale-[1.02]"
+                      required
+                      minLength={6}
                     />
                   </div>
                   <Button 
@@ -168,21 +236,24 @@ const Settings = () => {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span>Email Notifications</span>
-                  <Button variant="outline" size="sm" className="transition-all duration-200 hover:scale-105">
-                    Enabled
-                  </Button>
+                  <Switch
+                    checked={notifications.email}
+                    onCheckedChange={() => handleNotificationToggle('email')}
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <span>SMS Notifications</span>
-                  <Button variant="outline" size="sm" className="transition-all duration-200 hover:scale-105">
-                    Disabled
-                  </Button>
+                  <Switch
+                    checked={notifications.sms}
+                    onCheckedChange={() => handleNotificationToggle('sms')}
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Push Notifications</span>
-                  <Button variant="outline" size="sm" className="transition-all duration-200 hover:scale-105">
-                    Enabled
-                  </Button>
+                  <Switch
+                    checked={notifications.push}
+                    onCheckedChange={() => handleNotificationToggle('push')}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -198,21 +269,24 @@ const Settings = () => {
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span>System Maintenance Mode</span>
-                    <Button variant="outline" size="sm" className="transition-all duration-200 hover:scale-105">
-                      Disabled
-                    </Button>
+                    <Switch
+                      checked={adminSettings.maintenanceMode}
+                      onCheckedChange={() => handleAdminSettingToggle('maintenanceMode')}
+                    />
                   </div>
                   <div className="flex items-center justify-between">
                     <span>User Registration</span>
-                    <Button variant="outline" size="sm" className="transition-all duration-200 hover:scale-105">
-                      Enabled
-                    </Button>
+                    <Switch
+                      checked={adminSettings.userRegistration}
+                      onCheckedChange={() => handleAdminSettingToggle('userRegistration')}
+                    />
                   </div>
                   <div className="flex items-center justify-between">
                     <span>Debug Mode</span>
-                    <Button variant="outline" size="sm" className="transition-all duration-200 hover:scale-105">
-                      Disabled
-                    </Button>
+                    <Switch
+                      checked={adminSettings.debugMode}
+                      onCheckedChange={() => handleAdminSettingToggle('debugMode')}
+                    />
                   </div>
                 </CardContent>
               </Card>
