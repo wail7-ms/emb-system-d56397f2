@@ -1,9 +1,13 @@
-
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 import { Users, Database, BarChart3, Settings, FileText, Shield } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
   const adminFeatures = [
     {
       title: "User Management",
@@ -49,8 +53,19 @@ const AdminDashboard = () => {
     }
   ];
 
+  const handleAccess = (feature: typeof adminFeatures[0]) => {
+    if (feature.path === "/settings") {
+      navigate('/settings');
+    } else {
+      toast({
+        title: `${feature.title} Access`,
+        description: `Opening ${feature.title.toLowerCase()} interface...`,
+      });
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
         <p className="mt-2 text-gray-600">
@@ -59,17 +74,26 @@ const AdminDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {adminFeatures.map((feature) => (
-          <Card key={feature.title} className="hover:shadow-lg transition-shadow cursor-pointer">
+        {adminFeatures.map((feature, index) => (
+          <Card 
+            key={feature.title} 
+            className="hover:shadow-lg transition-all duration-300 cursor-pointer hover-scale group"
+            style={{ animationDelay: `${index * 100}ms` }}
+          >
             <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-              <div className={`p-2 rounded-md ${feature.color}`}>
+              <div className={`p-2 rounded-md ${feature.color} transition-transform duration-300 group-hover:scale-110`}>
                 <feature.icon className="h-6 w-6 text-white" />
               </div>
             </CardHeader>
             <CardContent>
               <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
               <p className="text-gray-600 text-sm mb-4">{feature.description}</p>
-              <Button variant="outline" size="sm" className="w-full">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full transition-all duration-200 hover:scale-105 hover:bg-primary hover:text-primary-foreground"
+                onClick={() => handleAccess(feature)}
+              >
                 Access
               </Button>
             </CardContent>
@@ -78,7 +102,7 @@ const AdminDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        <Card className="hover:shadow-lg transition-all duration-300 hover-scale">
           <CardHeader>
             <CardTitle>System Overview</CardTitle>
           </CardHeader>
@@ -104,7 +128,7 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-lg transition-all duration-300 hover-scale">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
           </CardHeader>
