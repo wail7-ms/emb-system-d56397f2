@@ -3,10 +3,20 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Users, Database, BarChart3, Settings, FileText, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
+import ReportsDialog from './ReportsDialog';
+import DataManagementDialog from './DataManagementDialog';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [dialogState, setDialogState] = useState({
+    reports: false,
+    users: false,
+    database: false,
+    security: false,
+    logs: false
+  });
 
   const adminFeatures = [
     {
@@ -14,54 +24,69 @@ const AdminDashboard = () => {
       description: "Manage users, roles, and permissions",
       icon: Users,
       path: "/users",
-      color: "bg-blue-500"
+      color: "bg-blue-500",
+      dialogType: 'users'
     },
     {
       title: "Database Operations",
       description: "View and manage database tables",
       icon: Database,
       path: "/records",
-      color: "bg-green-500"
+      color: "bg-green-500",
+      dialogType: 'database'
     },
     {
       title: "System Reports",
       description: "Analytics and performance reports",
       icon: BarChart3,
       path: "/reporting",
-      color: "bg-purple-500"
+      color: "bg-purple-500",
+      dialogType: 'reports'
     },
     {
       title: "Security Settings",
       description: "RBAC and security configuration",
       icon: Shield,
       path: "/security",
-      color: "bg-red-500"
+      color: "bg-red-500",
+      dialogType: 'security'
     },
     {
       title: "System Logs",
       description: "View system activity logs",
       icon: FileText,
       path: "/logs",
-      color: "bg-orange-500"
+      color: "bg-orange-500",
+      dialogType: 'logs'
     },
     {
       title: "Configuration",
       description: "System settings and preferences",
       icon: Settings,
       path: "/settings",
-      color: "bg-gray-500"
+      color: "bg-gray-500",
+      dialogType: null
     }
   ];
 
   const handleAccess = (feature: typeof adminFeatures[0]) => {
     if (feature.path === "/settings") {
       navigate('/settings');
-    } else {
+    } else if (feature.dialogType) {
+      if (feature.dialogType === 'reports') {
+        setDialogState(prev => ({ ...prev, reports: true }));
+      } else {
+        setDialogState(prev => ({ ...prev, [feature.dialogType as keyof typeof dialogState]: true }));
+      }
       toast({
         title: `${feature.title} Access`,
         description: `Opening ${feature.title.toLowerCase()} interface...`,
       });
     }
+  };
+
+  const closeDialog = (type: keyof typeof dialogState) => {
+    setDialogState(prev => ({ ...prev, [type]: false }));
   };
 
   return (
@@ -154,6 +179,41 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Dialog Components */}
+      <ReportsDialog
+        open={dialogState.reports}
+        onOpenChange={() => closeDialog('reports')}
+        title="System Reports & Analytics"
+      />
+
+      <DataManagementDialog
+        open={dialogState.users}
+        onOpenChange={() => closeDialog('users')}
+        title="User Management"
+        type="users"
+      />
+
+      <DataManagementDialog
+        open={dialogState.database}
+        onOpenChange={() => closeDialog('database')}
+        title="Database Operations"
+        type="database"
+      />
+
+      <DataManagementDialog
+        open={dialogState.security}
+        onOpenChange={() => closeDialog('security')}
+        title="Security & Access Control"
+        type="records"
+      />
+
+      <DataManagementDialog
+        open={dialogState.logs}
+        onOpenChange={() => closeDialog('logs')}
+        title="System Activity Logs"
+        type="logs"
+      />
     </div>
   );
 };

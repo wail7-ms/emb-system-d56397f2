@@ -3,10 +3,18 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { FileText, User, Database, BarChart3 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
+import ReportsDialog from './ReportsDialog';
+import DataManagementDialog from './DataManagementDialog';
 
 const UserDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [dialogState, setDialogState] = useState({
+    records: false,
+    submit: false,
+    reports: false
+  });
 
   const userFeatures = [
     {
@@ -14,40 +22,53 @@ const UserDashboard = () => {
       description: "View and edit your personal records",
       icon: FileText,
       path: "/my-records",
-      color: "bg-blue-500"
+      color: "bg-blue-500",
+      dialogType: 'records'
     },
     {
       title: "Submit Data",
       description: "Add new data entries",
       icon: Database,
       path: "/submit",
-      color: "bg-green-500"
+      color: "bg-green-500",
+      dialogType: 'submit'
     },
     {
       title: "My Reports",
       description: "View your personal analytics",
       icon: BarChart3,
       path: "/my-reports",
-      color: "bg-purple-500"
+      color: "bg-purple-500",
+      dialogType: 'reports'
     },
     {
       title: "Profile Settings",
       description: "Update your profile information",
       icon: User,
       path: "/settings",
-      color: "bg-gray-500"
+      color: "bg-gray-500",
+      dialogType: null
     }
   ];
 
   const handleAccess = (feature: typeof userFeatures[0]) => {
     if (feature.path === "/settings") {
       navigate('/settings');
-    } else {
+    } else if (feature.dialogType) {
+      if (feature.dialogType === 'reports') {
+        setDialogState(prev => ({ ...prev, reports: true }));
+      } else {
+        setDialogState(prev => ({ ...prev, [feature.dialogType as keyof typeof dialogState]: true }));
+      }
       toast({
         title: `${feature.title} Access`,
         description: `Opening ${feature.title.toLowerCase()} interface...`,
       });
     }
+  };
+
+  const closeDialog = (type: keyof typeof dialogState) => {
+    setDialogState(prev => ({ ...prev, [type]: false }));
   };
 
   return (
@@ -136,6 +157,27 @@ const UserDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Dialog Components */}
+      <ReportsDialog
+        open={dialogState.reports}
+        onOpenChange={() => closeDialog('reports')}
+        title="My Personal Reports"
+      />
+
+      <DataManagementDialog
+        open={dialogState.records}
+        onOpenChange={() => closeDialog('records')}
+        title="My Records"
+        type="records"
+      />
+
+      <DataManagementDialog
+        open={dialogState.submit}
+        onOpenChange={() => closeDialog('submit')}
+        title="Submit New Data"
+        type="submit"
+      />
     </div>
   );
 };
