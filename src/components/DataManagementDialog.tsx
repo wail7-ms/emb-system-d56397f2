@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -286,16 +287,16 @@ const DataManagementDialog = ({ open, onOpenChange, title, type }: DataManagemen
                             />
                           ) : header === 'status' ? (
                             <span className={`px-2 py-1 rounded text-xs ${
-                              row[header as keyof typeof row] === 'Active' || row[header as keyof typeof row] === 'Success' || row[header as keyof typeof row] === 'Completed'
+                              String(row[header as keyof typeof row]) === 'Active' || String(row[header as keyof typeof row]) === 'Success' || String(row[header as keyof typeof row]) === 'Completed'
                                 ? 'bg-green-100 text-green-800'
-                                : row[header as keyof typeof row] === 'Pending' || row[header as keyof typeof row] === 'In Progress'
+                                : String(row[header as keyof typeof row]) === 'Pending' || String(row[header as keyof typeof row]) === 'In Progress'
                                 ? 'bg-yellow-100 text-yellow-800'
                                 : 'bg-red-100 text-red-800'
                             }`}>
-                              {row[header as keyof typeof row]}
+                              {String(row[header as keyof typeof row])}
                             </span>
                           ) : (
-                            row[header as keyof typeof row]
+                            String(row[header as keyof typeof row])
                           )}
                         </TableCell>
                       ))}
