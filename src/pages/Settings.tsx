@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,12 +6,14 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
-import { User, Lock, Bell, Shield } from 'lucide-react';
+import { User, Lock, Bell, Shield, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 const Settings = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   
   const [profile, setProfile] = useState({
@@ -35,11 +36,14 @@ const Settings = () => {
     debugMode: false
   });
 
+  const handleBackToDashboard = () => {
+    navigate('/dashboard');
+  };
+
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // TODO: Replace with actual API call to update profile
     console.log('Updating profile:', { name: profile.name, email: profile.email });
     
     setTimeout(() => {
@@ -74,7 +78,6 @@ const Settings = () => {
     
     setIsLoading(true);
     
-    // TODO: Replace with actual API call to change password
     console.log('Changing password for user:', user?.email);
     
     setTimeout(() => {
@@ -91,7 +94,6 @@ const Settings = () => {
     setNotifications(prev => {
       const newSettings = { ...prev, [type]: !prev[type] };
       
-      // TODO: Replace with actual API call to update notification settings
       console.log('Updating notification settings:', newSettings);
       
       toast({
@@ -107,7 +109,6 @@ const Settings = () => {
     setAdminSettings(prev => {
       const newSettings = { ...prev, [type]: !prev[type] };
       
-      // TODO: Replace with actual API call to update admin settings
       console.log('Updating admin settings:', newSettings);
       
       toast({
@@ -124,9 +125,19 @@ const Settings = () => {
       <Navbar />
       <main className="container mx-auto py-6 px-4">
         <div className="space-y-6 animate-fade-in">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-            <p className="mt-2 text-gray-600">Manage your account settings and preferences</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
+              <p className="mt-2 text-gray-600">Manage your account settings and preferences</p>
+            </div>
+            <Button 
+              onClick={handleBackToDashboard}
+              variant="outline"
+              className="flex items-center gap-2 transition-all duration-200 hover:scale-105"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Dashboard
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

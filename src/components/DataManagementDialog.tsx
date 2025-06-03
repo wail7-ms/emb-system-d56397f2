@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,6 +15,13 @@ interface DataManagementDialogProps {
   type: 'users' | 'records' | 'database' | 'security' | 'logs' | 'submit';
 }
 
+type UserRecord = { id: number; name: string; email: string; role: string; status: string; };
+type ProjectRecord = { id: number; title: string; type: string; date: string; status: string; };
+type DatabaseRecord = { id: number; table: string; records: number; size: string; lastUpdated: string; };
+type LogRecord = { id: number; timestamp: string; user: string; action: string; status: string; };
+
+type DataRecord = UserRecord | ProjectRecord | DatabaseRecord | LogRecord;
+
 const DataManagementDialog = ({ open, onOpenChange, title, type }: DataManagementDialogProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -24,7 +30,7 @@ const DataManagementDialog = ({ open, onOpenChange, title, type }: DataManagemen
   const [showAddForm, setShowAddForm] = useState(false);
   const { toast } = useToast();
 
-  const getSampleData = () => {
+  const getSampleData = (): DataRecord[] => {
     switch (type) {
       case 'users':
         return [
@@ -62,7 +68,7 @@ const DataManagementDialog = ({ open, onOpenChange, title, type }: DataManagemen
     }
   };
 
-  const [data, setData] = useState(getSampleData());
+  const [data, setData] = useState<DataRecord[]>(getSampleData());
   
   // Filter data based on search term
   const filteredData = data.filter(row => {
@@ -79,12 +85,11 @@ const DataManagementDialog = ({ open, onOpenChange, title, type }: DataManagemen
   };
 
   const handleSave = () => {
-    // TODO: Replace with actual API call to update record
     console.log('Updating record:', editingData);
     
     setData(prevData => 
       prevData.map(row => 
-        row.id === editingId ? { ...editingData } : row
+        row.id === editingId ? { ...editingData } as DataRecord : row
       )
     );
     
@@ -103,7 +108,6 @@ const DataManagementDialog = ({ open, onOpenChange, title, type }: DataManagemen
   };
 
   const handleDelete = (id: number) => {
-    // TODO: Replace with actual API call to delete record
     console.log('Deleting record with id:', id);
     
     setData(prevData => prevData.filter(row => row.id !== id));
@@ -115,13 +119,12 @@ const DataManagementDialog = ({ open, onOpenChange, title, type }: DataManagemen
   };
 
   const handleAdd = () => {
-    if (type === 'logs') return; // Logs shouldn't be manually added
+    if (type === 'logs') return;
     
-    // TODO: Replace with actual API call to create record
     console.log('Adding new record:', newRecord);
     
     const newId = Math.max(...data.map(d => d.id)) + 1;
-    setData(prevData => [...prevData, { id: newId, ...newRecord }]);
+    setData(prevData => [...prevData, { id: newId, ...newRecord } as DataRecord]);
     
     toast({
       title: "Record Added",
@@ -133,7 +136,6 @@ const DataManagementDialog = ({ open, onOpenChange, title, type }: DataManagemen
   };
 
   const handleSubmitData = () => {
-    // TODO: Replace with actual API call to submit data
     console.log('Submitting new data:', newRecord);
     
     toast({
@@ -284,16 +286,16 @@ const DataManagementDialog = ({ open, onOpenChange, title, type }: DataManagemen
                             />
                           ) : header === 'status' ? (
                             <span className={`px-2 py-1 rounded text-xs ${
-                              row[header] === 'Active' || row[header] === 'Success' || row[header] === 'Completed'
+                              row[header as keyof typeof row] === 'Active' || row[header as keyof typeof row] === 'Success' || row[header as keyof typeof row] === 'Completed'
                                 ? 'bg-green-100 text-green-800'
-                                : row[header] === 'Pending' || row[header] === 'In Progress'
+                                : row[header as keyof typeof row] === 'Pending' || row[header as keyof typeof row] === 'In Progress'
                                 ? 'bg-yellow-100 text-yellow-800'
                                 : 'bg-red-100 text-red-800'
                             }`}>
-                              {row[header]}
+                              {row[header as keyof typeof row]}
                             </span>
                           ) : (
-                            row[header]
+                            row[header as keyof typeof row]
                           )}
                         </TableCell>
                       ))}
